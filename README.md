@@ -10,7 +10,6 @@ complete multi-container stack and distributed worker-failure recovery have
 not yet been verified.
 
 ## Architecture
-
 ```text
 Client -> REST API -> PostgreSQL + Kafka -> Scheduler -> Kafka assignments
                           Redis <- Worker Manager <- heartbeats / events
@@ -96,25 +95,6 @@ Docker Compose describes Kafka (KRaft), Redis, PostgreSQL, topic initialization,
 the API, scheduler, worker manager, worker agent, and Prometheus. Configure
 credentials and start it from the repository root:
 
-```powershell
-Copy-Item .env.example .env
-# Edit .env and replace CHRONOS_API_KEY with a long random value.
-docker compose up --build
-```
-
-In another terminal, use the same API key from `.env` to submit and query a
-job using the requests above. Prometheus is exposed at
-`http://localhost:9090`; the API metrics endpoint is
-`http://localhost:8080/metrics`. Stop the stack with `Ctrl+C`, or run
-`docker compose down` (persistent database and Redis volumes remain).
-
-**Verification status:** Docker Desktop's engine was returning API errors and
-could not be restarted without elevation in the development environment.
-Consequently, the Compose stack, API-to-Kafka flow, Prometheus scrape, and a
-worker-kill/reassignment demo were not run here. `CHRONOS_FAIL_FIRST_JOBS`
-injects a failed first attempt in the worker agent; it is not equivalent to
-killing a worker process. Do not treat Compose instructions as verified
-end-to-end recovery.
 
 System architecture : <img width="1536" height="1024" alt="4db42093-46f0-4302-995a-aff65057bc8b" src="https://github.com/user-attachments/assets/20cc8a38-3281-4323-bae1-78ca2131aec4" />
 
