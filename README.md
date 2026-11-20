@@ -7,8 +7,7 @@ optional PostgreSQL, Redis, and Kafka integrations.
 The local scheduler and HTTP gateway are runnable and tested. The integrations
 and service binaries build where their dependencies are available, but the
 complete multi-container stack and distributed worker-failure recovery have
-not yet been verified. See [Roadmap](#roadmap) before treating this as a
-production scheduler.
+not yet been verified.
 
 ## Architecture
 
@@ -117,64 +116,8 @@ injects a failed first attempt in the worker agent; it is not equivalent to
 killing a worker process. Do not treat Compose instructions as verified
 end-to-end recovery.
 
-## Tests and benchmark
+System architecture : <img width="1536" height="1024" alt="4db42093-46f0-4302-995a-aff65057bc8b" src="https://github.com/user-attachments/assets/20cc8a38-3281-4323-bae1-78ca2131aec4" />
 
-The native build with Redis and Kafka options enabled compiled the API,
-worker-agent, and worker-manager binaries and passed the available CTest
-suite: 43 tests, with 4 integration tests skipped because their external
-services were unavailable. Core/API tests passed, including retry, heartbeat,
-DAG, authentication, rate limiting, and metrics tests. PostgreSQL and Redis
-integration tests had also passed separately against PostgreSQL 16 and Redis
-7. No broker-backed Kafka test was run.
 
-The benchmark runs the local in-memory scheduler at 1, 2, 4, and 8 worker
-threads. Its real measurements from this machine are:
 
-| Workers | Throughput (jobs/s) | Scheduling latency p50/p95/p99 (ms) | Worker-time utilization | Recovery (ms) |
-|---:|---:|---:|---:|---:|
-| 1 | 63.6154 | 7810.473 / 14919.297 / 15543.925 | 98.915% | 15713.199 |
-| 2 | 127.767 | 3892.238 / 7417.891 / 7728.951 | 99.157% | 7821.845 |
-| 4 | 254.677 | 1950.320 / 3704.889 / 3862.382 | 98.659% | 3923.425 |
-| 8 | 507.183 | 968.767 / 1841.658 / 1920.678 | 97.686% | 1967.516 |
 
-These are measurements, not estimates. The benchmark submitted a batch of
-1,000 one-millisecond jobs per worker count on Windows 10, an AMD Ryzen 5
-5500U (6 cores / 12 logical processors), about 7.34 GiB physical memory, and
-GCC 16.2.0. Scheduling latency is queue-to-start and includes time spent
-waiting behind the submitted batch. Worker-time utilization is aggregate
-callback wall time divided by worker count and elapsed time; it is not host CPU
-utilization. Recovery time measures the injected first failure through a
-successful retry, including queueing. Raw results and machine details are in
-[docs/benchmarks/chronos_benchmark.csv](./docs/benchmarks/chronos_benchmark.csv)
-and [docs/benchmarks/machine-specs.json](./docs/benchmarks/machine-specs.json).
-
-Run the benchmark again with:
-
-```powershell
-.\build\chronos_benchmark.exe --jobs 1000 --duration-ms 1 `
-  --output-dir docs/benchmarks
-```
-
-## Roadmap
-
-- [x] C++17 core domain, stable priority queue, thread-pool scheduler, and
-      runnable local demo.
-- [x] Worker scoring strategies, capacity checks, retry/backoff, heartbeat
-      timeout handling, reassignment primitives, and dead-letter behavior.
-- [x] DAG validation, cycle detection, and dependency-ordered execution.
-- [x] API-key-authenticated, rate-limited REST endpoints and request validation.
-- [x] PostgreSQL schema/repository and Redis hiredis worker-state/lease support;
-      each has been integration-tested against a real local service.
-- [x] Kafka client wrappers, service entry points, Docker configuration,
-      Prometheus endpoint/configuration, structured logging, and real local
-      benchmark outputs.
-- [ ] Run and verify `docker compose up --build` end-to-end.
-- [ ] Run Kafka broker-backed event tests and demonstrate actual worker process
-      loss followed by distributed reassignment/recovery.
-- [ ] Add a transactional outbox and durable reconciliation for the
-      PostgreSQL/Kafka dual-write gap and active assignments after restarts.
-- [ ] Complete distributed workflow/dependency execution, cancellation
-      fencing, artifact/log storage, and production dashboards/alerts.
-
-For interview preparation, see [docs/interview-qa.md](./docs/interview-qa.md)
-for project-specific questions and answers.
