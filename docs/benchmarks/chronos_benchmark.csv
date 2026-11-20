@@ -1,0 +1,5 @@
+workers,jobs,task_duration_ms,throughput_jobs_per_sec,scheduling_latency_p50_ms,scheduling_latency_p95_ms,scheduling_latency_p99_ms,worker_time_utilization_pct,failure_recovery_ms,elapsed_ms
+1,1000,1,63.615,7810.473,14919.297,15543.925,98.915,15713.199,15719.466
+2,1000,1,127.767,3892.238,7417.891,7728.951,99.157,7821.845,7826.736
+4,1000,1,254.677,1950.320,3704.889,3862.382,98.659,3923.425,3926.547
+8,1000,1,507.183,968.767,1841.658,1920.678,97.686,1967.516,1971.676
